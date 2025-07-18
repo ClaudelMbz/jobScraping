@@ -1,0 +1,605 @@
+{
+  "name": "Final Webscraping",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "christ",
+        "fields": "title, company, location,\turl,\tresume,\tcategory, is_notified,\tcreated_at",
+        "options": {}
+      },
+      "name": "MongoDB2",
+      "type": "n8n-nodes-base.mongoDb",
+      "position": [
+        3180,
+        520
+      ],
+      "typeVersion": 1,
+      "id": "1a4fe707-3dd6-426d-87a2-4fec7c9f7734",
+      "credentials": {
+        "mongoDb": {
+          "id": "Ts8u13t2bhYJmJof",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "title",
+              "value": "={{ $('Replace Me').item.json.title }}"
+            },
+            {
+              "name": "company",
+              "value": "={{ $('Replace Me').item.json.company }}"
+            },
+            {
+              "name": "location",
+              "value": "={{ $('Replace Me').item.json.location }}"
+            },
+            {
+              "name": "url",
+              "value": "={{ $('Replace Me').item.json.url }}"
+            },
+            {
+              "name": "resume",
+              "value": "={{ $('Replace Me').item.json.resume }}"
+            },
+            {
+              "name": "category",
+              "value": "={{ $('Replace Me').item.json.category }}"
+            },
+            {
+              "name": "created_at",
+              "value": "={{ $('Replace Me').item.json.created_at }}"
+            }
+          ],
+          "boolean": [
+            {
+              "name": "is_notified"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3000,
+        520
+      ],
+      "typeVersion": 1,
+      "id": "77eccf89-730f-4b59-927d-a2160bd1e686"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.results",
+        "options": {}
+      },
+      "id": "b1de0dee-9bfd-4d6f-bb77-44d3c56e0c04",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1140,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.data }}",
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"results\": {\n    \"type\": \"array\",\n    \"items\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"title\": { \"type\": \"string\" },\n        \"company\": { \"type\": \"string\" },\n        \"location\": { \"type\": \"string\" },\n        \"url\": { \"type\": \"string\" },\n        \"resume\": { \"type\": \"string\" },\n        \"category\": { \"type\": \"string\" },\n        \"created_at\": {\n          \"type\": \"string\",\n          \"format\": \"date-time\"\n        }\n      }\n    }\n  }\n}\n",
+        "options": {
+          "systemPromptTemplate": "=\"\"\"\nPrompt pour résumer l'offre d'emploi\nInstructions pour le modèle :\n\nTu es un assistant spécialisé dans l'extraction et la synthèse des informations clés des offres d'emploi. \nTon objectif est de transformer une description détaillée d'une offre d'emploi en un résumé structuré contenant \nuniquement les informations essentielles Voici les champs que tu dois inclure dans ton résumé :\n\n1. **Titre du poste**\n2. **Lieu**\n3. **Nom de l'entreprise**\n3. **Durée** (si applicable)\n4. **Diplôme requis**\n5. **Expérience requise**\n6. **Langues nécessaires**\n7. **Date limite de candidature**\n8. **Comment postuler**\n\nUtilise un format clair et concis, comme celui-ci :\nExemple de format attendu :\n**[Titre du poste]**\n- Lieu : [lieu]\n- Nom de l'entreprise: [entreprise]\n- Durée : [durée]\n- Diplôme requis : [diplôme]\n- Expérience : [expérience]\n- Langues : [langues]\n- Date limite candidature : [date]\n- Comment postuler : [instructions]\nEntrée (texte brut de l'offre d'emploi) :\n\nResumé avec au maximum 100 mots\n\"\"\"\nToujours retourner les données dans un tableau JSON appelé results, où chaque offre d'emploi comprend les champs suivants : title (titre du poste), company (nom de l'entreprise), location (lieu du poste), url (lien direct vers l'offre), resume (résumé généré par IA), category (catégorie du poste) et created_at (date et heure au format ISO 8601).\n\n\nLes categories possibles sont implémentés sur ce qui suit\n\nInformatique / IT\n\nFinance / Comptabilité\n\nCommunication / Marketing\n\nConseil / Stratégie\n\nTransport / Logistique\n\nIngénierie / BTP\n\nSanté / Médical\n\nÉducation / Formation\n\nRessources humaines / Recrutement\n\nDroit / Légal / Juridique\n\nEnvironnement / Développement durable\n\nSécurité / Défense / Surveillance\n\nHumanitaire / ONG / Social\n\nTourisme / Hôtellerie / Restauration\n\nArt / Culture / Design\n\nIndustrie / Production / Maintenance\n\nCommerce / Vente / Distribution\n\nImmobilier / Construction\n\nAgriculture / Agroalimentaire\n\nSciences / Recherche\n\nTransport / Mécanique / Automobile\n\nAutre"
+        }
+      },
+      "id": "1437090b-2ed5-43f3-b10f-63072add2b12",
+      "name": "Information Extractor",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        800,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "=https://r.jina.ai/{{ $json.Websites }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "redirect": {}
+        }
+      },
+      "id": "3fa4021e-6b65-4177-8914-c62e02a6a1ef",
+      "name": "Jina Fetch",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        520,
+        0
+      ],
+      "typeVersion": 4.1,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "05Zjw7fVdhwtfG9M",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        1380,
+        0
+      ],
+      "id": "7ec5ae73-edef-44f0-afff-85389f17ea94",
+      "name": "Merge"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2980,
+        820
+      ],
+      "id": "ba1a1a43-1327-4fa4-a2c8-c4193b1d960d",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "batchSize": "=1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1580,
+        200
+      ],
+      "id": "ffa7f3ae-b56c-43aa-b7e4-606a62650367",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        1880,
+        400
+      ],
+      "id": "50b99c6b-619a-4e98-91aa-c33f1e03c75b"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        720,
+        280
+      ],
+      "id": "1ef96207-cb95-4a26-8c5b-81ff7e2c7c47",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "soXOtRM7BIFZshUQ",
+          "name": "JESC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "554234621112117",
+        "recipientPhoneNumber": "+243891276637",
+        "textBody": "The WebScraping was successfully done !",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1880,
+        0
+      ],
+      "id": "09b2aaee-8ce0-4ec3-a045-ca8a0a365268",
+      "name": "WhatsApp Business Cloud",
+      "webhookId": "c2e7b62c-ac8b-4f3d-b8e0-91d2af6c6ba1",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "XmNhKHmOdkAkQucS",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1yUHclbUCtjaR4HyRZ4q0dQUPyz_toFaa-rsBuk1gKm4",
+          "mode": "list",
+          "cachedResultName": "WebStructure",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1yUHclbUCtjaR4HyRZ4q0dQUPyz_toFaa-rsBuk1gKm4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1446004778,
+          "mode": "list",
+          "cachedResultName": "Feuille 5",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1yUHclbUCtjaR4HyRZ4q0dQUPyz_toFaa-rsBuk1gKm4/edit#gid=1446004778"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        260,
+        0
+      ],
+      "id": "d49fd364-7a96-4c3a-9c6f-29de42b6e23f",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5usRzh5WDMrcka0O",
+          "name": "Claudel90"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ba855f81-a4d6-4c76-8c22-eebdea52ef1b",
+              "name": "link",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "96c2c4cd-344f-43fd-8098-081e42a1d7ca",
+      "name": "ID to compare with1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "url",
+              "field2": "link"
+            }
+          ]
+        },
+        "resolve": "mix",
+        "options": {
+          "skipFields": "id, label"
+        }
+      },
+      "id": "f9dc8bee-3427-4670-8630-621e83be6eda",
+      "name": "Compare Datasets",
+      "type": "n8n-nodes-base.compareDatasets",
+      "typeVersion": 2.3,
+      "position": [
+        2580,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "christ",
+        "options": {},
+        "query": "{\n  \"url\": { \"$exists\": true }\n}\n"
+      },
+      "name": "MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "position": [
+        1880,
+        220
+      ],
+      "typeVersion": 1,
+      "id": "5c72d217-b7c9-42ca-8034-5bc0df3b7dc6",
+      "credentials": {
+        "mongoDb": {
+          "id": "Ts8u13t2bhYJmJof",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4404a9b9-521d-4be1-987c-3530e70272eb",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        220
+      ],
+      "id": "b86f2f88-6938-4426-a214-1d5124269f34",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Ce script transforme une liste d'URLs en objets avec id, url et label\n\n// items est une variable automatique dans n8n qui contient toutes les entrées\n\nreturn items.map((item, index) => {\n  const url = item.json.url;\n\n  // Génération d'un ID unique basé sur l'index\n  const id = `id_${index + 1}`;\n\n  // Génération d'un label (nom court) basé sur l'index\n  const label = `Link${index + 1}`;\n\n  return {\n    json: {\n      id: id,\n      url: url,\n      label: label\n    }\n  };\n});\n"
+      },
+      "id": "935d0394-7247-47bf-beca-46be9a1eb7ba",
+      "name": "Spreadsheet data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2300,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "46b93d42-2ed0-44b7-982c-85568cac405d",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "MongoDB2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "MongoDB2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jina Fetch": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "ID to compare with1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Jina Fetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID to compare with1": {
+      "main": [
+        [
+          {
+            "node": "Compare Datasets",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Compare Datasets": {
+      "main": [
+        [],
+        [],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Spreadsheet data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spreadsheet data": {
+      "main": [
+        [
+          {
+            "node": "Compare Datasets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ef7264c5-4609-4349-b0aa-c1abcc28cd51",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e484406340098e1115fe8262a0c6d540c1a00c1e5c2e20a689b053e7719f136f"
+  },
+  "id": "PIof9U28k9Pf0kgD",
+  "tags": []
+}
