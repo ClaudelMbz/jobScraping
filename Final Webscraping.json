@@ -1,0 +1,109 @@
+{
+  "name": "Final Webscraping",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://r.jina.ai/https://www.mediacongo.net/emplois.html",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "redirect": {}
+        }
+      },
+      "id": "e3ed0724-b16c-41ff-8a3a-9025e1b49caf",
+      "name": "Jina Fetch",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        80,
+        -32
+      ],
+      "typeVersion": 4.1,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "30YC26cWGrtAeTXH",
+          "name": "Jina AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        96
+      ],
+      "id": "6a66afab-1057-4385-8b20-b47aaa11d662",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.scraperapi.com?api_key=cd06c95002214ffbe6708dbaca1c7c28&url=https://www.mediacongo.net/emplois.html&render=true&country_code=fr",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "68562e00-d63f-48cd-a42c-452c7a09ba59",
+      "name": "Scraper API - Emploi CD1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        96,
+        240
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Jina Fetch": {
+      "main": [
+        []
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Scraper API - Emploi CD1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Jina Fetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f7f9ca5b-e603-4aa1-8c42-daf4413aac52",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0f2d4d981a4df008184c70bfa6f377fee8b43a268e0dcadc9aee15fbdea9da02"
+  },
+  "id": "xmHPspTtKO8RIywC",
+  "tags": []
+}
